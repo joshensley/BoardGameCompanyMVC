@@ -1,0 +1,74 @@
+﻿@model PaginatedList<BoardGameCompanyMVC.ViewModels.UserOrderGroup>
+@{
+    ViewData["Title"] = "Shipping";
+}
+
+<br />
+<div class="container row p-0 m-0">
+    <div class="col-9">
+        <h2>Shipping Backlog</h2>
+    </div>
+</div>
+<br />
+
+<table class="table table-hover">
+    <thead class="thead-light">
+        <tr class="text-center">
+            <th scope="col">@Html.DisplayNameFor(model => model[0].OrderCount)</th>
+            <th scope="col">@Html.DisplayNameFor(model => model[0].OrderNumber)</th>
+            <th scope="col">@Html.DisplayNameFor(model => model[0].OrderDate)</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr class="text-center">
+                <td>@Html.DisplayFor(modelItem => item.OrderCount)</td>
+                <td>@Html.DisplayFor(modelItem => item.OrderNumber)</td>
+                <td>@Html.DisplayFor(modelItem => item.OrderDate)</td>
+                <td>
+                    <a asp-area=""
+                       asp-controller="UserShipping"
+                       asp-action="Edit"
+                       asp-route-id="@item.OrderNumber"
+                       type="button"
+                       class="btn btn-info">
+                        <i class="fas fa-truck"></i>
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@{ 
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<div class="row">
+    <div class="col-6">
+        <nav aria-label="...">
+            <ul class="pagination">
+                <li class="page-item @prevDisabled">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-pageNumber="@(Model.PageIndex - 1)">
+                        Previous
+                    </a>
+                </li>
+                <li class="page-item @nextDisabled">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-pageNumber="@(Model.PageIndex + 1)">
+                        Next
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <div class="col-6 text-right">
+        Page @Model.PageIndex of @Model.TotalPages
+    </div>
+</div>
