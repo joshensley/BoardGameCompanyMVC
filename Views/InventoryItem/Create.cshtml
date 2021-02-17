@@ -1,0 +1,74 @@
+﻿@model BoardGameCompanyMVC.ViewModels.InventoryItemDetailsViewModel
+@{
+    ViewData["Title"] = "Create Inventory Item";
+}
+
+<br />
+<div class="container row p-0 m-0">
+    <div class="col-9">
+        <h2 class="text-info">Create Inventory Item</h2>
+    </div>
+</div>
+<br />
+
+<div class="border container" style="padding:30px;">
+    <form asp-action="Create">
+        <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+        <input type="hidden" asp-for="InventoryItem.OrderedDate" />
+        <input type="hidden" asp-for="InventoryItem.ShippedDate" />
+        <div class="form-group row">
+            <div class="col-4">
+                <label asp-for="InventoryItem.InStock"></label>
+            </div>
+            <div class="col-6">
+                <input asp-for="InventoryItem.InStock" class="form-control" />
+                <div class="invalid-feedback" style="display:block;">
+                    <span asp-validation-for="InventoryItem.InStock" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-4">
+                <label asp-for="InventoryItem.ReceivedDate"></label>
+            </div>
+            <div class="col-6">
+                <input asp-for="InventoryItem.ReceivedDate" class="form-control" />
+                <div class="invalid-feedback" style="display:block;">
+                    <span asp-validation-for="InventoryItem.ReceivedDate" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-4">
+                <label asp-for="InventoryItem.BoardGameID"></label>
+            </div>
+            <div class="col-6">
+                <select class="form-select form-control" aria-label="Default select example" asp-for="InventoryItem.BoardGameID">
+                    <option value="" selected>--- Select Board Game ---</option>
+                    @foreach (var item in Model.BoardGame)
+                    {
+                        <option value="@(item.ID)">@item.Title</option>
+                    }
+                </select>
+                <div class="invalid-feedback" style="display:block;">
+                    <span asp-validation-for="InventoryItem.BoardGameID" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-3 offset-4">
+                <input type="submit" value="Create" class="btn btn-primary form-control" />
+            </div>
+            <div class="col-3">
+                <a asp-action="Index" class="btn btn-success form-control">Back to List</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+}

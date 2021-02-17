@@ -1,0 +1,58 @@
+﻿@model IList<BoardGameCompanyMVC.Models.Headlines>
+@{
+    ViewData["Title"] = "Headlines";
+}
+
+<br />
+<div class="container row p-0 m-0">
+    <div class="col-9">
+        <h2>Headline List</h2>
+    </div>
+    <div class="col-3">
+        <a asp-area="" asp-controller="Headlines" asp-action="Create" type="button" class="btn btn-info form-control text-white">
+            <i class="fas fa-plus"></i> Create Headline
+        </a>
+    </div>
+</div>
+<br />
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Image</th>
+            <th scope="col">Game Image</th>
+            <th scope="col">Title</th>
+            <th scope="col">Active</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td><img src="@item.ImageFilePath" alt="headline" width="200" /></td>
+                <td><img src="@item.BoardGame.ImageFilePath" alt="board game" width="100" /></td>
+                <td>@item.BoardGame.Title</td>
+                <td>@item.IsActive</td>
+                <td>
+                    <a asp-area=""
+                       asp-controller="Headlines"
+                       asp-action="Edit"
+                       asp-route-id="@item.ID"
+                       type="button"
+                       class="btn btn-success">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a asp-area=""
+                       asp-controller="Headlines"
+                       asp-action="Delete"
+                       asp-route-id="@item.ID"
+                       type="button"
+                       class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i>
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

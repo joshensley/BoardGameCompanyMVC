@@ -1,0 +1,195 @@
+﻿@model BoardGameCompanyMVC.ViewModels.UserCartViewModel
+@{
+    ViewData["Title"] = "Cart";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-0 pl-0" style="background-color:white;">
+        <li class="breadcrumb-item"><a style="color:gray;" asp-controller="Home" asp-action="Index">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Your Cart</li>
+    </ol>
+</nav>
+
+<h4>YOUR CART @Model.UserCart.Count()</h4>
+<hr />
+
+@if (Model.BoardGames != null)
+{
+    foreach (var item in Model.BoardGames)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>@item.Title</strong> currently has @item.InventoryItems.Count() quantity in stock. Please adjust your cart.
+            <a href="#" class="close" data-bs-dismiss="alert" aria-label="close">&times;</a>
+        </div>
+    }
+}
+
+@if (Model.UserCart.Count() > 0)
+{
+
+
+    <div class="row">
+        <div class="col text-right">
+            <a class="btn btn-dark mr-2" asp-controller="Home" asp-action="Index">
+                CONTINUE SHOPPING
+            </a>
+            <a class="btn btn-primary" asp-action="CheckOut">
+                CHECK OUT
+            </a>
+        </div>
+    </div>
+    <br />
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Cart Items</th>
+                <th scope="col" class="text-center">@Html.DisplayNameFor(model => model.UserCart[0].BoardGame.Price)</th>
+                <th scope="col" class="text-center">@Html.DisplayNameFor(model => model.UserCart[0].Quantity)</th>
+                <th scope="col" class="text-right">Total Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.UserCart)
+            {
+
+                var totalPrice = item.BoardGame.Price * item.Quantity;
+
+                <tr>
+                    <td>
+                        <div class="row">
+                            <div class="col-4 mr-2">
+                                <img src="@item.BoardGame.ImageFilePath"
+                                     alt="board game"
+                                     width="50" />
+                            </div>
+                            <div class="col-7">
+                                <div class="row">
+                                    @item.BoardGame.Brand.BrandName
+                                </div>
+                                <div class="row">
+                                    @item.BoardGame.Title
+                                </div>
+
+                                @if ((Model.ErrorMessage != null) && (Model.ErrorBoardGameID == item.BoardGameID))
+                                {
+                                    <div class="row text-danger">@Model.ErrorMessage</div>
+                                }
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-center">
+
+                        $@Html.DisplayFor(model => item.BoardGame.Price)
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center">
+                            <form asp-action="IncreaseQuantity"
+                                  asp-route-boardGameID="@item.BoardGameID"
+                                  asp-route-lineItemId="@item.ID"
+                                  class="mr-1">
+                                <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+                                <input type="hidden" asp-for="@item.Quantity" value="@item.Quantity" />
+                                <input type="hidden" asp-for="@item.BoardGameID" value="@item.BoardGameID" />
+                                <input type="hidden" asp-for="@item.ApplicationUserId" value="@item.ApplicationUserId" />
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-outline-dark"
+                                        style="border-radius:50%;">
+                                    <i class="fas fa-chevron-up"></i>
+                                </button>
+                            </form>
+
+                            @Html.DisplayFor(model => item.Quantity)
+
+                            <form asp-action="DecreaseQuantity"
+                                  asp-route-boardGameID="@item.BoardGameID"
+                                  asp-route-lineItemId="@item.ID"
+                                  class="ml-1">
+                                <button type="submit"
+                                        class="btn btn-sm btn-outline-dark"
+                                        style="border-radius:50%;">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                    <td class="text-right">
+                        <form asp-action="Delete" asp-route-id="@item.ID">
+                            $@totalPrice
+                            <button type="submit"
+                                    class="btn btn-sm btn-outline-dark"
+                                    style="border-radius:50%;">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+
+            @{
+                decimal subTotal = 0;
+                foreach (var item in Model.UserCart)
+                {
+                    decimal total = item.BoardGame.Price * item.Quantity;
+                    subTotal = subTotal + total;
+                }
+
+                decimal tax = Math.Round((subTotal * 0.0625m), 2);
+
+                decimal grandTotal = subTotal + tax;
+            }
+
+            <tr>
+                <td colspan="4">
+                    <div class="row">
+                        <div class="col-6"><strong>Subtotal:</strong></div>
+                        <div class="col-6 text-right">$@subTotal</div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <div class="row">
+                        <div class="col-6"><strong>Shipping:</strong></div>
+                        <div class="col-6 text-right">Applied at checkout</div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <div class="row">
+                        <div class="col-6"><strong>Tax:</strong></div>
+                        <div class="col-6 text-right">$@tax</div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <div class="row">
+                        <div class="col-6"><strong>Grand total:</strong></div>
+                        <div class="col-6 text-right"><strong>$@grandTotal</strong></div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="row">
+        <div class="col text-right">
+            <a class="btn btn-dark mr-2" asp-controller="Home" asp-action="Index">
+                CONTINUE SHOPPING
+            </a>
+           
+            <a class="btn btn-primary" asp-action="CheckOut">
+                CHECK OUT
+            </a>
+          
+        </div>
+    </div>
+}
+else
+{
+    <p>There are no items in your cart</p>
+}
+

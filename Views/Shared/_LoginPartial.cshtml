@@ -1,0 +1,53 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using BoardGameCompanyMVC.Models
+@using BoardGameCompanyMVC.Data
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject ApplicationDbContext _db
+@{ 
+    var itemsInCart = 0;
+    var userName = "";
+    var userImage = "";
+    @if (User.Identity.IsAuthenticated)
+    {
+        var user = (await UserManager.GetUserAsync(User));
+        var userId = user.Id;
+        userName = user.Name.Split(" ")[0];
+        userImage = user.UserAvatarFilePath;
+        itemsInCart = (_db.UserCart.Where(i => i.ApplicationUserId == userId)).Count();
+    }
+}
+
+<ul class="navbar-nav">
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="nav-item mt-2">
+        <img src="@userImage" alt="avatar" style="object-fit: cover; border-radius: 50%; height:30px; width:30px;"/>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-light" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">@(userName)</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link text-light" asp-controller="UserCart" asp-action="Index">
+            <i class="fas fa-shopping-cart"></i>
+            <span class='badge badge-warning' id='lblCartCount'>@itemsInCart</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <form  class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+            <button  type="submit" class="nav-link btn btn-link text-light">Logout</button>
+        </form>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link text-light" asp-area="Identity" asp-page="/Account/Register">Register</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-light" asp-area="Identity" asp-page="/Account/Login">Login</a>
+    </li>
+}
+</ul>

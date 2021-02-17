@@ -1,0 +1,448 @@
+﻿@model BoardGameCompanyMVC.ViewModels.UserCheckOutViewModel
+@using Microsoft.Extensions.Options
+@inject IOptions<BoardGameCompanyMVC.Data.StripeSettings> Stripe
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="container">
+    <div class="py-5 text-center">
+        <h2>Checkout</h2>
+        <hr/>
+    </div>
+
+    @if (Model.Error == true && Model.BoardGames != null)
+    {
+        foreach (var item in Model.BoardGames)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>@item.Title</strong> currently has @item.InventoryItems.Count() quantity in stock. Please adjust your cart.
+                <a href="#" class="close" data-bs-dismiss="alert" aria-label="close">&times;</a>
+            </div>
+        }
+    }
+
+    @if (Model.Error == true && Model.ErrorMessage != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Payment Error: </strong> @Model.ErrorMessage
+            <a href="#" class="close" data-bs-dismiss="alert" aria-label="close">&times;</a>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-4 order-md-2 mb-4">
+            <h4 class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted">Your cart</span>
+                <span class="badge badge-secondary badge-pill">@Model.UserCart.Sum(u => u.Quantity)</span>
+            </h4>
+            <ul class="list-group mb-3">
+
+                @foreach (var item in Model.UserCart)
+                {
+                    var totalQtyPrice = Math.Round((item.Quantity * item.BoardGame.Price), 2);
+
+                    <li class="list-group-item d-flex justify-content-between lh-condensed">
+                        <div>
+                            <small><strong><u>Cart Item</u></strong></small>
+                            <h6 class="my-0">@Html.DisplayFor(model => item.BoardGame.Title)</h6>
+                            <small class="text-muted">Qty @Html.DisplayFor(model => item.Quantity) x $@Html.DisplayFor(model => item.BoardGame.Price)</small>
+                        </div>
+                        <span class="text-muted">+ $@(totalQtyPrice)</span>
+                    </li>
+                }
+
+                <li class="list-group-item d-flex justify-content-between lh-condensed bg-light">
+                    <div>
+                        <h6 class="my-0">SubTotal</h6>
+                    </div>
+                    <span class="text-muted">$@Html.DisplayFor(model => model.UserCheckOutInput.SubTotal)</span>
+                </li>
+
+                <li class="list-group-item d-flex justify-content-between lh-condensed">
+                    <div>
+                        <h6 class="my-0">Tax</h6>
+                    </div>
+                    <span class="text-muted">+ $@Html.DisplayFor(model => model.UserCheckOutInput.Tax)</span>
+                </li>
+
+                <li class="list-group-item d-flex justify-content-between lh-condensed">
+                    <div>
+                        <h6 class="my-0">Shipping</h6>
+                    </div>
+                    <span class="text-muted">+ $@Html.DisplayFor(model => model.UserCheckOutInput.Shipping)</span>
+                </li>
+
+                <li class="list-group-item d-flex justify-content-between bg-light text-success">
+                    <span><strong>Total (USD)</strong></span>
+                    <strong>$@Html.DisplayFor(model => model.UserCheckOutInput.GrandTotal)</strong>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-8 order-md-1">
+            <h4 class="mb-3">Billing address</h4>
+            <form asp-action="Create">
+                <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+
+                @* In order for the UserCart to be posted to the Controller the list must be iterated over *@
+                @for (int i = 0; i < Model.UserCart.Count; i++)
+                {
+                    <input type="hidden" asp-for="UserCheckOutInput.UserCart[i].ID" value="@Model.UserCart[i].ID" />
+                    <input type="hidden" asp-for="UserCheckOutInput.UserCart[i].BoardGameID" value="@Model.UserCart[i].BoardGameID" />
+                    <input type="hidden" asp-for="UserCheckOutInput.UserCart[i].Quantity" value="@Model.UserCart[i].Quantity" />
+                    <input type="hidden" asp-for="UserCheckOutInput.UserCart[i].ApplicationUserId" value="@Model.UserCart[i].ApplicationUserId" />
+                }
+
+                <input type="hidden" asp-for="UserCheckOutInput.ApplicationUserId" value="@Model.ApplicationUserId" />
+                <input type="hidden" asp-for="UserCheckOutInput.SubTotal" value="@Model.UserCheckOutInput.SubTotal" />
+                <input type="hidden" asp-for="UserCheckOutInput.Tax" value="@Model.UserCheckOutInput.Tax" />
+                <input type="hidden" asp-for="UserCheckOutInput.Shipping" value="@Model.UserCheckOutInput.Shipping" />
+                <input type="hidden" asp-for="UserCheckOutInput.GrandTotal" value="@Model.UserCheckOutInput.GrandTotal" />
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="UserCheckOutInput.FirstNameBillingAddress"></label>
+                        <input asp-for="UserCheckOutInput.FirstNameBillingAddress"
+                               type="text"
+                               class="form-control inputWrite"
+                               id="firstNameBilling"
+                               placeholder=""
+                               value=""
+                               required>
+                        <div class="invalid-feedback" style="display:block;">
+                            <span asp-validation-for="UserCheckOutInput.FirstNameBillingAddress" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="UserCheckOutInput.LastNameBillingAddress"></label>
+                        <input asp-for="UserCheckOutInput.LastNameBillingAddress"
+                               type="text"
+                               class="form-control inputWrite"
+                               id="lastNameBilling"
+                               placeholder=""
+                               value=""
+                               required>
+                        <div class="invalid-feedback" style="display:block;">
+                            <span asp-validation-for="UserCheckOutInput.LastNameBillingAddress" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="UserCheckOutInput.AddressBillingAddress"></label>
+                    <input asp-for="UserCheckOutInput.AddressBillingAddress"
+                           type="text"
+                           class="form-control inputWrite"
+                           id="addressBilling"
+                           placeholder="1234 Main St"
+                           required>
+                    <div class="invalid-feedback" style="display:block;">
+                        <span asp-validation-for="UserCheckOutInput.AddressBillingAddress" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="UserCheckOutInput.Address2BillingAddress"></label>
+                    <input asp-for="UserCheckOutInput.Address2BillingAddress"
+                           type="text"
+                           class="form-control inputWrite"
+                           id="address2Billing"
+                           placeholder="Apartment or suite">
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="UserCheckOutInput.CityBillingAddress"></label>
+                    <input asp-for="UserCheckOutInput.CityBillingAddress"
+                           type="text"
+                           class="form-control inputWrite"
+                           id="cityBilling"
+                           required>
+                    <div class="invalid-feedback" style="display:block;">
+                        <span asp-validation-for="UserCheckOutInput.CityBillingAddress" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-5 mb-3">
+                        <label asp-for="UserCheckOutInput.CountryBillingAddress">Country</label>
+                        <select asp-for="UserCheckOutInput.CountryBillingAddress"
+                                class="custom-select d-block w-100 inputWrite"
+                                id="countryBilling"
+                                required>
+                            <option value="">Choose...</option>
+                            <option value="United States">United States</option>
+                        </select>
+                        <div class="invalid-feedback" style="display:block;">
+                            <span asp-validation-for="UserCheckOutInput.CountryBillingAddress" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="UserCheckOutInput.StateBillingAddress"></label>
+                        <select asp-for="UserCheckOutInput.StateBillingAddress"
+                                class="custom-select d-block w-100 inputWrite"
+                                style="height: auto;
+                                max-height:50px;
+                                overflow-x:auto;"
+                                id="stateBilling"
+                                required>
+                            <option value="">Choose...</option>
+                            @foreach (var item in Model.UnitedStates)
+                            {
+                                <option value="@item.State">@item.State</option>
+                            }
+                        </select>
+                        <div class="invalid-feedback" style="display:block;">
+                            <span asp-validation-for="UserCheckOutInput.StateBillingAddress" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="UserCheckOutInput.PostalCodeBillingAddress"></label>
+                        <input asp-for="UserCheckOutInput.PostalCodeBillingAddress"
+                               type="text"
+                               class="form-control inputWrite"
+                               id="postalCodeBilling"
+                               placeholder=""
+                               required>
+                        <div class="invalid-feedback" style="display:block;">
+                            <span asp-validation-for="UserCheckOutInput.PostalCodeBillingAddress" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <hr class="mb-4">
+
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="same-address">
+                    <label class="custom-control-label" for="same-address">Shipping address is the same as my billing address</label>
+                </div>
+                <hr class="mt-4 mb-4">
+
+                <h4 class="mb-3">Shipping address</h4>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="UserCheckOutInput.FirstNameShippingAddress"></label>
+                        <input asp-for="UserCheckOutInput.FirstNameShippingAddress"
+                               type="text"
+                               class="form-control toggleShipping"
+                               id="firstNameShipping"
+                               placeholder=""
+                               required>
+                        <div class="invalid-feedback" style="display:block;">
+                            <span asp-validation-for="UserCheckOutInput.FirstNameShippingAddress" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="UserCheckOutInput.LastNameShippingAddress"></label>
+                        <input asp-for="UserCheckOutInput.LastNameShippingAddress"
+                               type="text"
+                               class="form-control toggleShipping"
+                               id="lastNameShipping"
+                               placeholder=""
+                               value=""
+                               required>
+                        <div class="invalid-feedback" style="display:block;">
+                            <span asp-validation-for="UserCheckOutInput.LastNameShippingAddress" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="UserCheckOutInput.AddressShippingAddress">Address</label>
+                    <input asp-for="UserCheckOutInput.AddressShippingAddress"
+                           type="text"
+                           class="form-control toggleShipping"
+                           id="addressShipping"
+                           placeholder="1234 Main St"
+                           required>
+                    <div class="invalid-feedback" style="display:block;">
+                        <span asp-validation-for="UserCheckOutInput.AddressShippingAddress" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="UserCheckOutInput.Address2ShippingAddress"></label>
+                    <input asp-for="UserCheckOutInput.Address2ShippingAddress"
+                           type="text"
+                           class="form-control toggleShipping"
+                           id="address2Shipping"
+                           placeholder="Apartment or suite">
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="UserCheckOutInput.CityShippingAddress"></label>
+                    <input asp-for="UserCheckOutInput.CityShippingAddress"
+                           type="text"
+                           class="form-control toggleShipping"
+                           id="cityShipping"
+                           required>
+                    <div class="invalid-feedback" style="display:block;">
+                        <span asp-validation-for="UserCheckOutInput.AddressShippingAddress" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-5 mb-3">
+                        <label asp-for="UserCheckOutInput.CountryShippingAddress"></label>
+                        <select asp-for="UserCheckOutInput.CountryShippingAddress"
+                                class="custom-select d-block w-100 toggleShipping"
+                                id="countryShipping"
+                                required>
+                            <option value="">Choose...</option>
+                            <option value="United States">United States</option>
+                        </select>
+                        <div class="invalid-feedback" style="display:block;">
+                            <span asp-validation-for="UserCheckOutInput.CountryShippingAddress" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="UserCheckOutInput.StateShippingAddress"></label>
+                        <select asp-for="UserCheckOutInput.StateShippingAddress"
+                                class="custom-select d-block w-100 toggleShipping"
+                                style="height: auto;
+                                max-height:50px;
+                                overflow-x:auto;"
+                                id="stateShipping"
+                                required>
+                            <option value="">Choose...</option>
+                            @foreach (var item in Model.UnitedStates)
+                            {
+                                <option value="@item.State">@item.State</option>
+                            }
+                        </select>
+                        <div class="invalid-feedback" style="display:block;">
+                            <span asp-validation-for="UserCheckOutInput.StateShippingAddress" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="UserCheckOutInput.PostalCodeShippingAddress"></label>
+                        <input asp-for="UserCheckOutInput.PostalCodeShippingAddress"
+                               type="text"
+                               class="form-control toggleShipping"
+                               id="postalCodeShipping"
+                               placeholder=""
+                               required>
+                        <div class="invalid-feedback" style="display:block;">
+                            <span asp-validation-for="UserCheckOutInput.PostalCodeShippingAddress" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="mt-3 mb-4">
+                <h4 class="mb-4">Payment</h4>
+
+                <div class="row justify-content-center">
+                    <div class="col-8">
+                        <script src="https://checkout.stripe.com/checkout.js"
+                                class="stripe-button"
+                                data-key="@Stripe.Value.PublishableKey"
+                                data-locale="auto"
+                                data-description="Credit Card Information">
+                        </script>
+                    </div>
+                </div>
+                
+                
+                <div class="mb-3"></div>
+                <ol>
+                    <li><small>Complete Shipping and Billing Information</small></li>
+                    <li><small>Select "Pay with Card"</small></li>
+                    <li><small>Email: Use any email address</small></li>
+                    <li><small>Use CC#: 4242424242424242</small></li>
+                    <li><small>Expiration: Any future date</small></li>
+                    <li><small>CVC: Any three digits</small></li>
+                </ol>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        // disables "Pay with Card" until Shipping and Billing information are complete
+        document.getElementsByClassName("stripe-button-el")[0].disabled = true;
+        $("[required]").on("change paste keyup", function () {
+            var requiredFieldsNotEmpty = $("[required]").filter(function () {
+                return $.trim($(this).val()).length == 0;
+            });
+
+            if (requiredFieldsNotEmpty.length > 0) {
+                document.getElementsByClassName("stripe-button-el")[0].disabled = true;
+            }
+
+            if (requiredFieldsNotEmpty.length == 0) {
+                document.getElementsByClassName("stripe-button-el")[0].disabled = false;
+            } 
+        });
+
+
+        // Toggles shipping address is the same as billing address
+        $("#same-address").on("change", function () {
+            if ($(this).is(":checked")) {
+                $(this).attr("value", "true");
+            } else {
+                $(this).attr("value", "false");
+            }
+
+            // If $sameAddress is true, field values from Billing Address will update Shipping Address field values
+            // Shipping Address field values will be disabled
+            var $sameAddress = $("#same-address").val();
+            if ($sameAddress === "true") {
+                $("#firstNameShipping").attr("value", $("#firstNameBilling").val());
+                $("#lastNameShipping").attr("value", $("#lastNameBilling").val());
+                $("#addressShipping").attr("value", $("#addressBilling").val());
+                $("#address2Shipping").attr("value", $("#address2Billing").val());
+                $("#cityShipping").attr("value", $("#cityBilling").val());
+                $("#stateShipping").attr("value", $("#stateBilling").val());
+                $("#postalCodeShipping").attr("value", $("#postalCodeBilling").val());
+
+                var countryBillingValue = $("#countryBilling").val();
+                $("form select[id=countryShipping]").val(countryBillingValue).change();
+
+                var stateBillingValue = $("#stateBilling").val();
+                $("form select[id=stateShipping]").val(stateBillingValue).change();
+
+                $(".toggleShipping").attr("readonly", true);
+            } else {
+
+                // Shipping Address field values will be reset to blank values
+                // Shipping Address field values will be enabled
+                $("#firstNameShipping").attr("value", "");
+                $("#lastNameShipping").attr("value", "");
+                $("#addressShipping").attr("value", "");
+                $("#address2Shipping").attr("value", "");
+                $("#cityShipping").attr("value", "");
+                $("#postalCodeShipping").attr("value", "");
+                $("form select[id=countryShipping]").val("").change();
+                $("form select[id=stateShipping]").val("").change();
+
+                $(".toggleShipping").attr("readonly", false);
+            }
+        });
+
+        // When a user changes input on Billing Address fields
+        $(".inputWrite").on("input", function () {
+
+            // If Shipping Address is same as Billing Address is true
+            // The field values for Billing Address will update the field values for Shipping Address automatically
+            var $sameAddress = $("#same-address").val();
+            if ($sameAddress === "true") {
+                $("#firstNameShipping").attr("value", $("#firstNameBilling").val());
+                $("#lastNameShipping").attr("value", $("#lastNameBilling").val());
+                $("#addressShipping").attr("value", $("#addressBilling").val());
+                $("#address2Shipping").attr("value", $("#address2Billing").val());
+                $("#cityShipping").attr("value", $("#cityBilling").val());
+                $("#postalCodeShipping").attr("value", $("#postalCodeBilling").val());
+
+                var countryBillingValue = $("#countryBilling").val();
+                $("form select[id=countryShipping]").val(countryBillingValue).change();
+
+                var stateBillingValue = $("#stateBilling").val();
+                $("form select[id=stateShipping]").val(stateBillingValue).change();
+            }
+        });
+
+    </script>
+} 

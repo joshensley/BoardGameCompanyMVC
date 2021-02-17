@@ -1,0 +1,246 @@
+﻿@model BoardGameCompanyMVC.ViewModels.BoardGameStoreViewModel
+@{
+    ViewData["Title"] = "Store";
+}
+
+<div class="row">
+    <br />
+    <div class="offset-xl-1 col-xl-5 offset-lg-1 col-lg-5 col-md-12 col-12 col-sm-12 col-xs-12">
+        <div style="text-align:center;" class="text-center">
+            <img src="@Model.BoardGame.ImageFilePath" alt="@Model.BoardGame.Title" width="300" />
+        </div>
+    </div>
+    <div class="offset-xl-1 col-xl-5 offset-lg-1 col-lg-5 col-md-12 col-12 col-sm-12 col-xs-12">
+        <br />
+        <h5 class="text-center text-xl-left">
+            @Html.DisplayNameFor(model => model.BoardGame.Brand.BrandName): @Html.DisplayFor(model => model.BoardGame.Brand.BrandName)
+        </h5>
+        <h3 class="text-center text-xl-left">
+            @Html.DisplayFor(model => model.BoardGame.Title)
+        </h3>
+        <h3 class="text-center text-xl-left">
+            @Html.DisplayFor(model => model.BoardGame.Price)
+        </h3>
+
+        @if (User.Identity.IsAuthenticated && Model.BoardGame.InventoryItems.Count() > 0)
+        {
+            <form asp-action="AddToCart">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+                        <input type="hidden" asp-for="UserCart.Quantity" value="@(1)" />
+                        <input type="hidden" asp-for="UserCart.ApplicationUserId" value="@Model.UserId" />
+                        <input type="hidden" asp-for="UserCart.BoardGameID" value="@Model.BoardGame.ID" />
+                        <input type="submit" class="btn btn-primary form-control" value="Add to Cart" />
+                    </div>
+                </div>
+            </form>
+        }
+        else if (!User.Identity.IsAuthenticated && Model.BoardGame.InventoryItems.Count() > 0)
+        {
+            <form asp-action="AddToCart">
+                <div class="row">
+                    <div class="col-12">
+                        <input type="submit" class="btn btn-primary form-control" value="Add to Cart" />
+                    </div>
+                </div>
+            </form>
+        }
+        else
+        {
+            <form>
+                <div class="row">
+                    <div class="col-12">
+                        <button type="button" class="btn btn-danger form-control disabled">Out of Stock</button>
+                    </div>
+                </div>
+            </form>
+        }
+
+
+        <br />
+        <dl class="row">
+            <dt class="col-4">
+                @Html.DisplayNameFor(model => model.BoardGame.UPC)
+            </dt>
+            <dd class="col-8">
+                @Html.DisplayFor(model => model.BoardGame.UPC)
+            </dd>
+            <dt class="col-4">
+                @Html.DisplayNameFor(model => model.BoardGame.Title)
+            </dt>
+            <dd class="col-8">
+                @Html.DisplayFor(model => model.BoardGame.Title)
+            </dd>
+            <dt class="col-4">
+                @Html.DisplayNameFor(model => model.BoardGame.ReleaseDate)
+            </dt>
+            <dd class="col-8">
+                @Html.DisplayFor(model => model.BoardGame.ReleaseDate)
+            </dd>
+            <dt class="col-4">
+                @Html.DisplayNameFor(model => model.BoardGame.PlayerNumber)
+            </dt>
+            <dd class="col-8">
+                @Html.DisplayFor(model => model.BoardGame.PlayerNumber)
+            </dd>
+            <dt class="col-4">
+                Stock
+            </dt>
+            <dd class="col-8">
+                @Html.DisplayFor(model => model.BoardGame.InventoryItems.Count)
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<h4>@Html.DisplayNameFor(model => model.BoardGame.Description)</h4>
+<hr />
+<p>@Html.DisplayFor(model => model.BoardGame.Description)</p>
+
+<hr />
+<br />
+<h4>Reviews</h4>
+<hr />
+
+@if (User.Identity.IsAuthenticated == true && Model.UserHasReview == false)
+{
+    <form asp-action="Create" asp-route-id="@Model.BoardGame.ID">
+        <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+        <input type="hidden" asp-for="UserBoardGameReview.UserReviewDate" value="@DateTime.Parse(DateTime.Now.ToString("yyyy/MM/dd"))" />
+        <input type="hidden" asp-for="UserBoardGameReview.UserIDReview" value="@Model.UserId" />
+        <input type="hidden" asp-for="UserBoardGameReview.BoardGameID" value="@Model.BoardGame.ID" />
+        <div class="form-group">
+            <div class="mb-3">
+                <textarea class="form-control disabled"
+                          id="reviewBoardGame"
+                          rows="3"
+                          placeholder="Write a review"
+                          asp-for="UserBoardGameReview.UserReview"></textarea>
+                <div class="invalid-feedback" style="display:block;">
+                    <span asp-validation-for="UserBoardGameReview.UserReview" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group text-right">
+            <input type="submit" class="btn btn-primary" />
+        </div>
+    </form>
+}
+else if (Model.UserHasReview == true)
+{
+    <p>
+        You already have a review.&nbsp;
+        <a asp-action="Edit" asp-route-id="@Model.BoardGame.ID">
+            Edit your review.
+        </a>
+    </p>
+}
+else
+{
+    <div class="text-left">
+        Want to write a review? <a asp-area="Identity" asp-page="/Account/Login">Sign-in</a>
+    </div>
+}
+
+
+<br />
+<div class="row justify-content-center">
+    @foreach (var item in Model.UserReviewGroups)
+    {
+        var index = 0;
+
+        <div class="col-md-6 col-sm-12 col-12">
+            <div class="card w-100 mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-1 mr-4">
+                            <img src="@item.UserAvatarFilePath"
+                                 alt="avatar"
+                                 style="object-fit: cover; border-radius: 50%; height: 50px; width: 50px;" />
+                        </div>
+                        <div class="col-8">
+                            <h5 class="card-title">@item.Name</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">@item.ReviewDate</h6>
+                        </div>
+
+                        @if (User.Identity.IsAuthenticated && item.Id == Model.UserId)
+                        {
+                            <div class="col-1 text-right mr-2">
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary"
+                                            style="border-radius:50%;"
+                                            type="button"
+                                            id="dropdownMenuButton"
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false">
+                                        <i class="fas fa-bars"></i>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <li>
+                                            <a asp-action="Edit"
+                                               asp-route-id="@Model.BoardGame.ID"
+                                               class="dropdown-item">
+                                                Edit
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a asp-action="Delete"
+                                               asp-route-id="@Model.BoardGame.ID"
+                                               class="dropdown-item">
+                                                Delete
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <p class="card-text userReview">
+                                @item.UserReview
+
+                            </p>
+                            <span class="readMore" hidden>Read More...</span><span class="readLess" hidden>Read Less...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        index++;
+    }
+</div>
+
+@section Scripts
+{
+    <script>
+
+       @* $(document).ready(function () {
+            $(".userReview").each(function (index, element) {
+
+                var $userReview = $(this);
+
+                var $reviewLength = $(this).text().length
+                if ($reviewLength >= 244) {
+
+                    $userReview = $userReview.text().substring(0, 244);
+
+                    $(".readMore").attr("hidden", false);
+                    //$(".readMore").append(" <span>Read more...</span>");
+                } else {
+                    $userReview = $userReview.text();
+                    //$(".readMore").append(" <span>Read less...</span>");
+                    $(".readLess").attr("hidden", false);
+                }
+                
+                $(this).text($userReview)
+            });
+        });*@
+
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+}

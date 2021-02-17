@@ -1,0 +1,42 @@
+﻿@model BoardGameCompanyMVC.Models.Brand
+@{
+    ViewData["Title"] = "Details";
+    var brandBoardGameCount = Model.BoardGames.Count();
+}
+
+<br />
+<div class="container row p-0 m-0">
+    <div class="col-9">
+        <h2 class="text-info">Details Brand</h2>
+    </div>
+</div>
+<br />
+
+<div class="border container" style="padding:30px;">
+    <h4>Brand</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.BrandName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.BrandName)
+        </dd>
+        <dt class="col-sm-2">
+            Board Games
+        </dt>
+        <dd class="col-sm-10">
+            @brandBoardGameCount
+        </dd>
+    </dl>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.ID" type="button" class="btn btn-success">
+            Edit
+        </a>
+        <a asp-action="Index" type="button" class="btn btn-info">
+            Back To List
+        </a>
+    </div>
+</div>
+
+

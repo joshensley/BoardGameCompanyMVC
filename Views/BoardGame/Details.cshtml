@@ -1,0 +1,70 @@
+﻿@model BoardGameCompanyMVC.Models.BoardGame;
+@{
+    ViewData["Title"] = "Details Board Game";
+}
+
+<br />
+<div class="container row p-0 m-0">
+    <div class="col-9">
+        <h2 class="text-info">Details Board Game</h2>
+    </div>
+</div>
+<br />
+
+<div class="border container" style="padding:30px;">
+    <h4>Board Game</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-3">
+            @Html.DisplayNameFor(model => model.UPC)
+        </dt>
+        <dd class="col-9">
+            @Html.DisplayFor(model => model.UPC)
+        </dd>
+        <dt class="col-3">
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+        <dd class="col-9">
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+        <dt class="col-3">
+            @Html.DisplayNameFor(model => model.PlayerNumber)
+        </dt>
+        <dd class="col-9">
+            @Html.DisplayFor(model => model.PlayerNumber)
+        </dd>
+        <dt class="col-3">
+            @Html.DisplayNameFor(model => model.ReleaseDate)
+        </dt>
+        <dd class="col-9">
+            @Html.DisplayFor(model => model.ReleaseDate)
+        </dd>
+        <dt class="col-3">
+            @Html.DisplayNameFor(model => model.Price)
+        </dt>
+        <dd class="col-9">
+            @Html.DisplayFor(model => model.Price)
+        </dd>
+        <dt class="col-3">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class="col-9">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt class="col-3">
+            @Html.DisplayNameFor(model => model.ImageFilePath)
+        </dt>
+        <dd class="col-9">
+            <img src="@Html.DisplayFor(model => model.ImageFilePath)" 
+                 alt="board games"
+                 width="200"/>
+            
+        </dd>
+    </dl>
+    <a asp-action="Edit" asp-route-id="@Model.ID" type="button" class="btn btn-success">
+        Edit
+    </a>
+    <a asp-action="Index" type="button" class="btn btn-info">
+        Back To List
+    </a>
+</div> 

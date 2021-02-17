@@ -1,0 +1,194 @@
+﻿@model PaginatedList<BoardGameCompanyMVC.Models.BoardGame>
+
+@{
+    ViewData["Title"] = "Board Game List";
+}
+
+<br />
+<div class="container row p-0 m-0">
+    <div class="col-9">
+        <h2>Board Game List</h2>
+    </div>
+    <div class="col-3">
+        <a asp-area="" asp-controller="BoardGame" asp-action="Create" type="button" class="btn btn-info form-control text-white">
+            <i class="fas fa-plus"></i> Create Board Game
+        </a>
+    </div>
+</div>
+<hr />
+
+<form asp-action="Index" method="get">
+    <div class="form-actions no-color">
+        <div class="input-group input-group-lg mb-3">
+            <input type="text"
+                   class="form-control"
+                   placeholder="Search Board Games"
+                   aria-label="Board Games search"
+                   aria-describedby="basic-addon2"
+                   name="SearchString"
+                   value="@ViewData["CurrentFilter"]" />
+            <div class="input-group-append">
+                <input class="btn btn-outline-primary"
+                       type="submit"
+                       value="Search" />
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary"
+                   type="button">
+                    Clear
+                </a>
+            </div>
+        </div>
+    </div>
+</form>
+
+<table class="table table-hover">
+    <thead class="thead-light">
+        <tr class="text-center">
+            <th scope="col">
+                @Html.DisplayNameFor(model => model[0].ImageFilePath)
+            </th>
+            <th scope="col">
+                <a style="color:black;"
+                   asp-action="Index"
+                   asp-route-sortOrder="@ViewData["TitleParm"]"
+                   asp-route-searchString="@ViewData["CurrentFilter"]">
+                    @if (ViewData["CurrentSort"].ToString() == "")
+                    {
+                        <i class="fas fa-sort-up">&nbsp;</i>
+                    }
+                    else if (ViewData["CurrentSort"].ToString() == "title_desc")
+                    {
+                        <i class="fas fa-sort-down">&nbsp;</i>
+                    }
+                    @Html.DisplayNameFor(model => model[0].Title)
+                </a>
+            </th>
+            <th scope="col">
+                <a style="color:black;"
+                   asp-action="Index"
+                   asp-route-sortOrder="@ViewData["PlayerNumberParm"]"
+                   asp-route-searchString="@ViewData["CurrentFilter"]">
+                    @if (ViewData["CurrentSort"].ToString() == "playerNumber_asc")
+                    {
+                        <i class="fas fa-sort-up">&nbsp;</i>
+                    }
+                    else if (ViewData["CurrentSort"].ToString() == "playerNumber_desc")
+                    {
+                        <i class="fas fa-sort-down">&nbsp;</i>
+                    }
+                    @Html.DisplayNameFor(model => model[0].PlayerNumber)
+                </a>
+            </th>
+            <th scope="col">
+                <a style="color:black;"
+                   asp-action="Index"
+                   asp-route-sortOrder="@ViewData["ReleaseDateParm"]"
+                   asp-route-searchString="@ViewData["CurrentFilter"]">
+                    @if (ViewData["CurrentSort"].ToString() == "releaseDate_asc")
+                    {
+                        <i class="fas fa-sort-up">&nbsp;</i>
+                    }
+                    else if (ViewData["CurrentSort"].ToString() == "releaseDate_desc")
+                    {
+                        <i class="fas fa-sort-down">&nbsp;</i>
+                    }
+                    @Html.DisplayNameFor(model => model[0].ReleaseDate)
+                </a>
+            </th>
+            <th scope="col">
+                <a style="color:black;"
+                   asp-action="Index"
+                   asp-route-sortOrder="@ViewData["PriceParm"]"
+                   asp-route-searchString="@ViewData["CurrentFilter"]">
+                    @if (ViewData["CurrentSort"].ToString() == "price_asc")
+                    {
+                        <i class="fas fa-sort-up">&nbsp;</i>
+                    }
+                    else if (ViewData["CurrentSort"].ToString() == "price_desc")
+                    {
+                        <i class="fas fa-sort-down">&nbsp;</i>
+                    }
+                    @Html.DisplayNameFor(model => model[0].Price)
+                </a>
+            </th>
+            <th scope="col">
+                <a style="color:black;"
+                   asp-action="Index"
+                   asp-route-sortOrder="@ViewData["InStockParm"]"
+                   asp-route-searchString="@ViewData["CurrentFilter"]">
+                    @if (ViewData["CurrentSort"].ToString() == "inStock_asc")
+                    {
+                        <i class="fas fa-sort-up">&nbsp;</i>
+                    }
+                    else if (ViewData["CurrentSort"].ToString() == "inStock_desc")
+                    {
+                        <i class="fas fa-sort-down">&nbsp;</i>
+                    }
+                    In Stock
+                </a>
+            </th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var itemInventoryCount = item.InventoryItems.Count();
+
+            <tr class="text-center">
+                <td><img src="@(item.ImageFilePath)" alt="board game" width="40" /></td>
+                <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                <td>@Html.DisplayFor(modelItem => item.PlayerNumber)</td>
+                <td>@Html.DisplayFor(modelItem => item.ReleaseDate)</td>
+                <td>@Html.DisplayFor(modelItem => item.Price)</td>
+                <td>@itemInventoryCount</td>
+                <td>
+                    <a asp-area=""
+                       asp-controller="BoardGame"
+                       asp-action="Edit"
+                       asp-route-id="@item.ID"
+                       type="button"
+                       class="btn btn-success">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a asp-area=""
+                       asp-controller="BoardGame"
+                       asp-action="Details"
+                       asp-route-id="@item.ID"
+                       type="button"
+                       class="btn btn-info">
+                        <i class="fas fa-info"></i>
+                    </a>
+                    <a asp-area=""
+                       asp-controller="BoardGame"
+                       asp-action="Delete"
+                       asp-route-id="@item.ID"
+                       type="button"
+                       class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i>
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<a asp-action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
+   asp-route-pageNumber="@(Model.PageIndex - 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-primary @prevDisabled">
+    Previous
+</a>
+<a asp-action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
+   asp-route-pageNumber="@(Model.PageIndex + 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-primary @nextDisabled">
+    Next
+</a>

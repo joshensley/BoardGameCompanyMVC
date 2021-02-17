@@ -1,0 +1,77 @@
+﻿@model BoardGameCompanyMVC.ViewModels.HeadlinesViewModel
+@{
+    ViewData["Title"] = "Create Headline";
+}
+
+<br />
+<div class="container row p-0 m-0">
+    <div class="col-9">
+        <h2 class="text-info">
+            Create Headline
+        </h2>
+    </div>
+</div>
+<br />
+
+<div class="border container" style="padding:30px;">
+    <form asp-action="Create" enctype="multipart/form-data">
+        <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+        <input type="hidden" asp-for="Headline.ImageFilePath" value="image" />
+
+        <div class="form-group row">
+            <div class="col-4">
+                <label asp-for="Headline.BoardGameID"></label>
+            </div>
+            <div class="col-6">
+                <select class="form-select form-control" aria-label="Default select example" asp-for="Headline.BoardGameID">
+                    <option value="" selected>--- Select Board Game ---</option>
+                    @foreach (var item in Model.BoardGames)
+                    {
+                        <option value="@(item.ID)">@item.Title</option>
+                    }
+                </select>
+                <div class="invalid-feedback" style="display:block;">
+                    <span asp-validation-for="Headline.BoardGameID" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-4">
+                <label asp-for="Headline.IsActive"></label>
+            </div>
+            <div class="col-6">
+                <input asp-for="Headline.IsActive" class="form-control" />
+                <div class="invalid-feedback" style="display:block;">
+                    <span asp-validation-for="Headline.IsActive" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-4">
+                <label asp-for="Headline.ImageFilePath"></label>
+            </div>
+            <div class="col-6">
+                <div class="custom-file">
+                    <input asp-for="Headline.FormFileUpload" type="file" class="custom-file-input" id="customFile" />
+                    <label class="custom-file-label" for="customFile">Choose File</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-3 offset-4">
+                <input type="submit" value="Create" class="btn btn-primary form-control" />
+            </div>
+            <div class="col-3">
+                <a asp-action="Index" class="btn btn-success form-control">Back to List</a>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+}
