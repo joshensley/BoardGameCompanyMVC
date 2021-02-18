@@ -1,8 +1,47 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IList<BoardGameCompanyMVC.Models.InventoryItem>
 @{
     ViewData["Title"] = "Shipping Confirmation";
 }
 
-<h1>Shipping Confirmation</h1>
+
+<br />
+<div class="container row p-0 m-0">
+    <div class="col-9">
+        <h2>Order # @Model.First().OrderNumber is shipped!</h2>
+    </div>
+</div>
+<br />
+
+<div class="border container" style="padding:30px;">
+    <table class="table table-hover">
+        <thead class="thead-light">
+            <tr class="text-center">
+                <th scope="col">@Html.DisplayNameFor(model => model[0].BoardGame.ImageFilePath)</th>
+                <th scope="col">@Html.DisplayNameFor(model => model[0].BoardGame.Title)</th>
+                <th scope="col">@Html.DisplayNameFor(model => model[0].ReceivedNumber)</th>
+                <th scope="col">@Html.DisplayNameFor(model => model[0].OrderNumber)</th>
+                <th scope="col">@Html.DisplayNameFor(model => model[0].ShippingNumber)</th>
+                <th scope="col">@Html.DisplayNameFor(model => model[0].ShippedDate)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr class="text-center">
+                    <td><img src="@(item.BoardGame.ImageFilePath)" alt="board game" width="40" /></td>
+                    <td>@Html.DisplayFor(modelItem => item.BoardGame.Title)</td>
+                    <td>@Html.DisplayFor(modelItem => item.ReceivedNumber)</td>
+                    <td>@Html.DisplayFor(modelItem => item.OrderNumber)</td>
+                    <td>@Html.DisplayFor(modelItem => item.ShippingNumber)</td>
+                    <td>@Html.DisplayFor(modelItem => item.ShippedDate)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="form-group row">
+        <div class="col-3">
+            <a asp-action="Index" class="btn btn-success form-control">Back to List</a>
+        </div>
+    </div>
+</div>

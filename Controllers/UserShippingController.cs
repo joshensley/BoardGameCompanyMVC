@@ -1,6 +1,8 @@
 ﻿using BoardGameCompanyMVC.Data;
 using BoardGameCompanyMVC.Models;
+using BoardGameCompanyMVC.Utility;
 using BoardGameCompanyMVC.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace BoardGameCompanyMVC.Controllers
 {
+    [Authorize(Roles = SD.AdminEndUser)]
     public class UserShippingController : Controller
     {
         public readonly ApplicationDbContext _db;
@@ -103,9 +106,19 @@ namespace BoardGameCompanyMVC.Controllers
             return View(inventoryItem);
         }
 
-        public IActionResult Confirmation(int id)
+        public async Task<IActionResult> Confirmation(int id)
         {
-            return View();
+            IList<InventoryItem> inventoryItems = await _db.InventoryItems
+                .Where(i => i.OrderNumber == id)
+                .Include(i => i.BoardGame)
+                .ToListAsync();
+
+            if (inventoryItems == null)
+            {
+                return NotFound();
+            }
+
+            return View(inventoryItems);
         }
     }
 }
