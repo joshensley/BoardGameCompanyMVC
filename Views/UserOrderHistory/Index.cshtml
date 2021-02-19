@@ -1,0 +1,60 @@
+﻿@model BoardGameCompanyMVC.ViewModels.UserOrderHistoryViewModel;
+@{
+    ViewData["Title"] = "Order History";
+}
+
+
+@if (Model.InventoryItems.Count() > 0)
+{
+    <br />
+    <div class="container row p-0 m-0">
+        <div class="col-9">
+            <h2>Your order history</h2>
+        </div>
+    </div>
+    <br />
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col" class="text-center">@Html.DisplayNameFor(model => model.InventoryItems[0].BoardGame.ImageFilePath)</th>
+                <th scope="col" class="text-center">@Html.DisplayNameFor(model => model.InventoryItems[0].BoardGame.Title)</th>
+                <th scope="col" class="text-center">@Html.DisplayNameFor(model => model.InventoryItems[0].OrderedDate)</th>
+                <th scope="col" class="text-center">@Html.DisplayNameFor(model => model.InventoryItems[0].OrderNumber)</th>
+                <th scope="col" class="text-center">@Html.DisplayNameFor(model => model.InventoryItems[0].ShippedDate)</th>
+                <th scope="col" class="text-center">@Html.DisplayNameFor(model => model.InventoryItems[0].ShippingNumber)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.InventoryItems)
+            {
+                <tr>
+                    <td class="text-center">
+                        <img src="@item.BoardGame.ImageFilePath" alt="board game" width="40" />
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(model => item.BoardGame.Title)
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(model => item.OrderedDate)
+                    </td>
+                    <td class="text-center">
+                        <a asp-controller="UserOrderConfirmation" asp-action="Index" asp-route-orderNumber="@item.OrderNumber.ToString()">
+                            @Html.DisplayFor(model => item.OrderNumber)
+                        </a>
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(model => item.ShippedDate)
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(model => item.ShippingNumber)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No order history</p>
+}
