@@ -14,17 +14,19 @@
 <div class="border container" style="padding:30px;">
     <form asp-action="Create">
         <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+
         <div class="form-group row">
             <div class="col-4">
                 <label asp-for="BrandName"></label>
             </div>
-            <div class="class-6">
+            <div class="col-6">
                 <input asp-for="BrandName" class="form-control" />
                 <div class="invalid-feedback" style="display:block;">
                     <span asp-validation-for="BrandName" class="text-danger"></span>
                 </div>
             </div>
         </div>
+
         <div class="form-group row">
             <div class="col-3 offset-4">
                 <input type="submit" value="Create" class="btn btn-primary form-control" />
@@ -33,6 +35,7 @@
                 <a asp-action="Index" class="btn btn-success form-control">Back to List</a>
             </div>
         </div>
+
     </form>
 </div>
 

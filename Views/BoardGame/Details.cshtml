@@ -12,8 +12,6 @@
 <br />
 
 <div class="border container" style="padding:30px;">
-    <h4>Board Game</h4>
-    <hr />
     <dl class="row">
         <dt class="col-3">
             @Html.DisplayNameFor(model => model.UPC)
@@ -61,10 +59,16 @@
             
         </dd>
     </dl>
-    <a asp-action="Edit" asp-route-id="@Model.ID" type="button" class="btn btn-success">
-        Edit
-    </a>
-    <a asp-action="Index" type="button" class="btn btn-info">
-        Back To List
-    </a>
+    <div class="form-group row">
+        <div class="col-3 offset-3">
+            <a asp-action="Edit" asp-route-id="@Model.ID" type="button " class="btn btn-primary form-control">
+                Edit
+            </a>
+        </div>
+        <div class="col-3">
+            <a asp-action="Index" type="button" class="btn btn-success form-control">
+                Back To List
+            </a>
+        </div>
+    </div>
 </div> 

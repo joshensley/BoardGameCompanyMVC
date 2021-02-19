@@ -122,11 +122,11 @@
 
                             @if (description.Length >= 145)
                             {
-                                <p class="card-text jQueryTest">@description...</p>
+                                <p class="card-text">@description...</p>
                             }
                             else
                             {
-                                <p class="card-text jQueryTest">@description</p>
+                                <p class="card-text">@description</p>
                             }
 
 
@@ -200,16 +200,6 @@
                                 Previous
                             </a>
                         </li>
-
-                        @*<li class="page-item"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item active">
-                                <span class="page-link">
-                                    <span class="sr-only">(current)</span>
-                                </span>
-                            </li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>*@
-
-
                         <li class="page-item @nextDisabled">
                             <a class="page-link "
                                asp-action="Index"
@@ -225,24 +215,5 @@
         </div>
     </div>
 </div>
-
-@section Scripts
-{
-    <script>
-        $(document).ready(function () {
-
-            $(".jQueryTest").on("click", function () {
-                $(".jQueryTest").css("color", "blue");
-            });
-
-            $(".jQueryTest").mouseover(function () {
-                $(this).css("color", "blue");
-            })
-            .mouseleave(function () {
-                $(this).css("color", "black");
-            });            
-        });
-    </script>
-}
 
 
