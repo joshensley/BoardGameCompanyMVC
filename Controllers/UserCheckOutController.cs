@@ -1,6 +1,7 @@
 ﻿using BoardGameCompanyMVC.Data;
 using BoardGameCompanyMVC.Models;
 using BoardGameCompanyMVC.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,7 @@ using System.Threading.Tasks;
 
 namespace BoardGameCompanyMVC.Controllers
 {
+    [Authorize(Roles = "Admin,Customer")]
     public class UserCheckOutController : Controller
     {
         public readonly ApplicationDbContext _db;

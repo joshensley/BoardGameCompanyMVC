@@ -1,5 +1,6 @@
 ﻿using BoardGameCompanyMVC.Data;
 using BoardGameCompanyMVC.Models;
+using BoardGameCompanyMVC.Utility;
 using BoardGameCompanyMVC.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -13,6 +14,7 @@ using System.Threading.Tasks;
 
 namespace BoardGameCompanyMVC.Controllers
 {
+    [Authorize(Roles = SD.AdminEndUser)]
     public class HeadlinesController : Controller
     {
         public readonly ApplicationDbContext _db;

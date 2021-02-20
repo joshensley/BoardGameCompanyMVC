@@ -71,7 +71,7 @@ namespace BoardGameCompanyMVC.Controllers
                     break;
             }
 
-            int pageSize = 3;
+            int pageSize = 9;
             PaginatedList<BoardGame> BoardGames = await PaginatedList<BoardGame>.CreateAsync(boardGames.AsNoTracking(), pageNumber ?? 1, pageSize);
 
             // Headlines
