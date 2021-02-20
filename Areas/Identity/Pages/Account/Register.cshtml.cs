@@ -25,7 +25,7 @@ namespace BoardGameCompanyMVC.Areas.Identity.Pages.Account
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<RegisterModel> _logger;
-        //private readonly IEmailSender _emailSender;
+        private readonly IEmailSender _emailSender;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _db;
 
@@ -34,8 +34,8 @@ namespace BoardGameCompanyMVC.Areas.Identity.Pages.Account
             SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
             RoleManager<IdentityRole> roleManager,
-            ApplicationDbContext db
-            //IEmailSender emailSender
+            ApplicationDbContext db,
+            IEmailSender emailSender
             )
         {
             _userManager = userManager;
@@ -43,7 +43,7 @@ namespace BoardGameCompanyMVC.Areas.Identity.Pages.Account
             _logger = logger;
             _roleManager = roleManager;
             _db = db;
-            //_emailSender = emailSender;
+            _emailSender = emailSender;
         }
 
         [BindProperty]
@@ -121,22 +121,13 @@ namespace BoardGameCompanyMVC.Areas.Identity.Pages.Account
                         await _roleManager.CreateAsync(new IdentityRole(SD.CustomerEndUser));
                     }
 
-                    _logger.LogInformation("User created a new account with password.");
-
                     if (Input.IsAdmin)
                     {
                         await _userManager.AddToRoleAsync(user, SD.AdminEndUser);
+                        await _signInManager.SignInAsync(user, isPersistent: false);
 
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                        var callbackUrl = Url.Page(
-                            "/Account/ConfirmEmail",
-                            pageHandler: null,
-                            values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
-                            protocol: Request.Scheme);
-
-                        /*await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                            $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");*/
+                        await _userManager.ConfirmEmailAsync(user, code);
 
                         return RedirectToPage("/Users/Index");
                     }
@@ -144,31 +135,10 @@ namespace BoardGameCompanyMVC.Areas.Identity.Pages.Account
                     {
                         await _userManager.AddToRoleAsync(user, SD.CustomerEndUser);
                         await _signInManager.SignInAsync(user, isPersistent: false);
+                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        await _userManager.ConfirmEmailAsync(user, code);
                         return LocalRedirect(returnUrl);
                     }
-
-                    //_logger.LogInformation("User created a new account with password.");
-
-                    /*var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callbackUrl = Url.Page(
-                        "/Account/ConfirmEmail",
-                        pageHandler: null,
-                        values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
-                        protocol: Request.Scheme);*/
-
-                    /*await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");*/
-
-                    /*if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                    {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
-                    }
-                    else
-                    {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
-                    }*/
                 }
                 foreach (var error in result.Errors)
                 {
